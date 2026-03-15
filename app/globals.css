@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 216 59% 7%;
+  --foreground: 210 40% 96%;
+  --card: 220 40% 10%;
+  --card-foreground: 210 40% 96%;
+  --popover: 220 36% 11%;
+  --popover-foreground: 210 40% 96%;
+  --primary: 188 100% 66%;
+  --primary-foreground: 217 72% 8%;
+  --secondary: 214 34% 18%;
+  --secondary-foreground: 210 40% 96%;
+  --muted: 218 33% 16%;
+  --muted-foreground: 213 17% 69%;
+  --accent: 194 82% 54%;
+  --accent-foreground: 213 72% 8%;
+  --destructive: 347 83% 63%;
+  --destructive-foreground: 210 40% 96%;
+  --border: 210 33% 22%;
+  --input: 210 33% 22%;
+  --ring: 188 100% 66%;
+  --radius: 1rem;
+}
+
+* {
+  @apply border-border;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply min-h-screen bg-background text-foreground antialiased;
+  background-image:
+    radial-gradient(circle at top left, rgba(61, 173, 255, 0.16), transparent 24%),
+    radial-gradient(circle at top right, rgba(0, 255, 194, 0.08), transparent 18%),
+    linear-gradient(180deg, rgba(5, 13, 24, 0.96) 0%, rgba(6, 16, 30, 0.98) 48%, rgba(4, 10, 20, 1) 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--tw-gradient-stops), linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: auto, 54px 54px, 54px 54px;
+  opacity: 0.24;
+  mask-image: radial-gradient(circle at center, black, transparent 78%);
+}
+
+::selection {
+  background: rgba(110, 242, 255, 0.28);
+}
+
+.panel-surface {
+  background:
+    linear-gradient(180deg, rgba(13, 25, 43, 0.94), rgba(7, 15, 28, 0.92)),
+    rgba(9, 17, 31, 0.92);
+}
+
+.panel-outline {
+  position: relative;
+}
+
+.panel-outline::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, rgba(110, 242, 255, 0.44), rgba(110, 242, 255, 0.05) 38%, rgba(0, 255, 194, 0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.data-sheen {
+  background: linear-gradient(90deg, rgba(110, 242, 255, 0.16), rgba(255, 255, 255, 0));
+}

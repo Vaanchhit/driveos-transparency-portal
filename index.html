@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aurelius Safety Command Center</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-soft: #0d1c30;
+      --panel: rgba(10, 24, 44, 0.82);
+      --panel-strong: rgba(13, 31, 57, 0.94);
+      --line: rgba(77, 193, 255, 0.28);
+      --line-strong: rgba(101, 213, 255, 0.66);
+      --accent: #6ef2ff;
+      --accent-2: #33d1ff;
+      --accent-3: #19f0b1;
+      --warn: #ffb44d;
+      --danger: #ff668e;
+      --text: #e8f3ff;
+      --muted: #8da4be;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --font-display: "Segoe UI", "SF Pro Display", "Helvetica Neue", sans-serif;
+      --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(51, 209, 255, 0.16), transparent 24%),
+        radial-gradient(circle at top right, rgba(25, 240, 177, 0.12), transparent 18%),
+        linear-gradient(160deg, #040a12 0%, #07111f 38%, #091629 100%);
+      color: var(--text);
+      font-family: var(--font-body);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+      pointer-events: none;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .login-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+    }
+
+    .login-card {
+      width: min(1080px, 100%);
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      padding: 28px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(12, 26, 46, 0.92), rgba(7, 18, 32, 0.94));
+      border: 1px solid rgba(110, 242, 255, 0.18);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-panel,
+    .form-panel {
+      position: relative;
+      border-radius: 22px;
+      padding: 28px;
+      background: rgba(6, 15, 28, 0.74);
+      border: 1px solid rgba(110, 242, 255, 0.12);
+    }
+
+    .hero-panel::before,
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(110, 242, 255, 0.45), transparent 35%, rgba(25, 240, 177, 0.28));
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(110, 242, 255, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(110, 242, 255, 0.18);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.02;
+      margin: 18px 0 12px;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-copy {
+      color: var(--muted);
+      max-width: 540px;
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 28px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .stat-chip {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(9, 23, 41, 0.88);
+      border: 1px solid rgba(110, 242, 255, 0.12);
+    }
+
+    .stat-chip .value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .stat-chip .label {
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .login-form {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .login-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(110, 242, 255, 0.14);
+      background: rgba(4, 10, 19, 0.86);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(110, 242, 255, 0.48);
+      box-shadow: 0 0 0 3px rgba(110, 242, 255, 0.12);
+      transform: translateY(-1px);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 18px;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent-3));
+      color: #041019;
+      box-shadow: 0 10px 30px rgba(51, 209, 255, 0.28);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border: 1px solid rgba(110, 242, 255, 0.14);
+    }
+
+    .btn-danger {
+      background: rgba(255, 102, 142, 0.15);
+      color: #ffd9e5;
+      border: 1px solid rgba(255, 102, 142, 0.24);
+    }
+
+    .quick-access {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .credential-card {
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(8, 19, 35, 0.76);
+      border: 1px solid rgba(110, 242, 255, 0.1);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .credential-card strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .app-screen {
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 24px;
+      margin-bottom: 20px;
+      border-radius: 22px;
+      background: rgba(6, 16, 28, 0.84);
+      border: 1px solid rgba(110, 242, 255, 0.1);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar-title {
+      display: grid;
+      gap: 4px;
+    }
+
+    .topbar-title h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .topbar-title p,
+    .meta-line {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: rgba(110, 242, 255, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(110, 242, 255, 0.18);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1.6fr 0.8fr;
+      gap: 20px;
+    }
+
+    .main-stack,
+    .side-stack {
+      display: grid;
+      gap: 20px;
+    }
+
+    .panel {
+      position: relative;
+      padding: 22px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(10, 24, 44, 0.92), rgba(8, 18, 34, 0.9));
+      border: 1px solid rgba(110, 242, 255, 0.08);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(110, 242, 255, 0.12);
+      min-height: 118px;
+    }
+
+    .metric-card .metric-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .metric-card .metric-value {
+      margin: 16px 0 10px;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .metric-card .metric-foot {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .two-col,
+    .three-col {
+      display: grid;
+      gap: 16px;
+    }
+
+    .two-col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .three-col {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .status-strip {
+      display: grid;
+      gap: 12px;
+    }
+
+    .status-item,
+    .list-item,
+    .timeline-item,
+    .feed-item {
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(110, 242, 255, 0.12);
+    }
+
+    .status-item strong,
+    .list-item strong,
+    .timeline-item strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+    }
+
+    .pill-open {
+      color: #ffd8a6;
+      background: rgba(255, 180, 77, 0.12);
+      border-color: rgba(255, 180, 77, 0.2);
+    }
+
+    .pill-investigating {
+      color: #9edcff;
+      background: rgba(51, 209, 255, 0.12);
+      border-color: rgba(51, 209, 255, 0.2);
+    }
+
+    .pill-resolved,
+    .pill-approved,
+    .pill-deployed {
+      color: #afffde;
+      background: rgba(25, 240, 177, 0.1);
+      border-color: rgba(25, 240, 177, 0.2);
+    }
+
+    .pill-rejected {
+      color: #ffd0dc;
+      background: rgba(255, 102, 142, 0.12);
+      border-color: rgba(255, 102, 142, 0.2);
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      max-height: 520px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .list.compact {
+      max-height: 360px;
+    }
+
+    .list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .list-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .form-grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .helper-text {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .chart-wrap {
+      height: 240px;
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(110, 242, 255, 0.12);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 18px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(110, 242, 255, 0.08);
+    }
+
+    .activity-feed {
+      display: grid;
+      gap: 12px;
+      max-height: 720px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .feed-item {
+      display: grid;
+      gap: 6px;
+    }
+
+    .feed-item time,
+    .timestamp {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .overview-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mini-stat {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(110, 242, 255, 0.12);
+    }
+
+    .mini-stat .value {
+      margin-top: 10px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .empty-state {
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px dashed rgba(110, 242, 255, 0.18);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .flash {
+      animation: pulse 1.2s ease;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(110, 242, 255, 0.36); }
+      100% { box-shadow: 0 0 0 18px rgba(110, 242, 255, 0); }
+    }
+
+    @media (max-width: 1180px) {
+      .dashboard-layout,
+      .login-card {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app-screen {
+        padding: 14px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .metrics-grid,
+      .two-col,
+      .three-col,
+      .overview-grid,
+      .form-grid.two,
+      .hero-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .login-card,
+      .hero-panel,
+      .form-panel,
+      .panel {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <section id="loginScreen" class="login-screen">
+      <div class="login-card">
+        <div class="hero-panel">
+          <div class="eyebrow">Aurelius Motors | Post-Incident Transparency Initiative</div>
+          <h1 class="hero-title">Aurelius Safety Command Center</h1>
+          <p class="hero-copy">
+            Autonomous Vehicle Safety Transparency Platform coordinating field incidents, engineering remediation,
+            executive approvals, regulator oversight, and insurer risk intelligence after the Ghost Drive Incident.
+          </p>
+          <div class="hero-stats">
+            <div class="stat-chip">
+              <div class="value">317</div>
+              <div class="label">Confirmed Incidents</div>
+            </div>
+            <div class="stat-chip">
+              <div class="value">58</div>
+              <div class="label">Traffic Collisions</div>
+            </div>
+            <div class="stat-chip">
+              <div class="value">11</div>
+              <div class="label">Serious Injuries</div>
+            </div>
+            <div class="stat-chip">
+              <div class="value">268K</div>
+              <div class="label">Fleet Vehicles</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-panel">
+          <div class="eyebrow">Secure Stakeholder Access</div>
+          <h2 class="panel-title" style="margin-top:16px;">Command Center Login</h2>
+          <p class="panel-subtitle">Access role-specific dashboards with live transparency data and upgrade tracking.</p>
+          <form id="loginForm" class="login-form">
+            <div class="login-grid">
+              <label>
+                Email
+                <input id="email" type="email" placeholder="name@aurelius.com" required />
+              </label>
+              <label>
+                Password
+                <input id="password" type="password" placeholder="••••••••" required />
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Enter Safety Command Center</button>
+            <div id="loginError" class="helper-text" style="color: var(--danger); min-height: 20px;"></div>
+          </form>
+          <div class="quick-access">
+            <div class="credential-card">
+              <strong>Demo Accounts</strong>
+              All roles use password <code>123</code>. Use any provided Aurelius stakeholder email to switch dashboards.
+            </div>
+            <div class="credential-card">
+              <strong>Available Roles</strong>
+              driver@aurelius.com, engineer@aurelius.com, management@aurelius.com, regulator@aurelius.com, insurance@aurelius.com
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="appScreen" class="app-screen hidden">
+      <header class="topbar">
+        <div class="topbar-title">
+          <div class="eyebrow">ASCC Mission Control</div>
+          <h1 id="dashboardTitle">Aurelius Safety Command Center</h1>
+          <p id="dashboardSubtitle" class="meta-line">Autonomous Vehicle Safety Transparency Platform</p>
+        </div>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <div id="sessionBadge" class="role-badge"></div>
+          <button id="resetDataBtn" class="btn btn-ghost" type="button">Reset Demo Data</button>
+          <button id="logoutBtn" class="btn btn-primary" type="button">Logout</button>
+        </div>
+      </header>
+
+      <div class="dashboard-layout">
+        <main class="main-stack">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Fleet Crisis Snapshot</h2>
+                <p class="panel-subtitle">Shared operating metrics visible across the ASCC ecosystem.</p>
+              </div>
+              <div class="tag" id="lastUpdatedTag">Live system state</div>
+            </div>
+            <div id="metricsGrid" class="metrics-grid"></div>
+          </section>
+
+          <div id="roleContent" class="main-stack"></div>
+        </main>
+
+        <aside class="side-stack">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Real-Time Activity Feed</h2>
+                <p class="panel-subtitle">Cross-stakeholder operational events from incident intake to deployment.</p>
+              </div>
+            </div>
+            <div id="activityFeed" class="activity-feed"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Upgrade Timeline</h2>
+                <p class="panel-subtitle">Recent safety improvement milestones across the Vortex fleet.</p>
+              </div>
+            </div>
+            <div id="upgradeTimeline" class="timeline"></div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ascc-demo-state-v1";
+    const SESSION_KEY = "ascc-demo-session-v1";
+    const USER_CREDENTIALS = {
+      "driver@aurelius.com": { password: "123", role: "Driver", name: "Elena Park" },
+      "engineer@aurelius.com": { password: "123", role: "Engineer", name: "Rohan Iyer" },
+      "management@aurelius.com": { password: "123", role: "Management", name: "Maya Laurent" },
+      "regulator@aurelius.com": { password: "123", role: "Regulator", name: "Nina Brooks" },
+      "insurance@aurelius.com": { password: "123", role: "Insurance", name: "Ethan Cole" }
+    };
+
+    const appEls = {
+      loginScreen: document.getElementById("loginScreen"),
+      appScreen: document.getElementById("appScreen"),
+      loginForm: document.getElementById("loginForm"),
+      loginError: document.getElementById("loginError"),
+      dashboardTitle: document.getElementById("dashboardTitle"),
+      dashboardSubtitle: document.getElementById("dashboardSubtitle"),
+      sessionBadge: document.getElementById("sessionBadge"),
+      roleContent: document.getElementById("roleContent"),
+      metricsGrid: document.getElementById("metricsGrid"),
+      activityFeed: document.getElementById("activityFeed"),
+      upgradeTimeline: document.getElementById("upgradeTimeline"),
+      lastUpdatedTag: document.getElementById("lastUpdatedTag"),
+      logoutBtn: document.getElementById("logoutBtn"),
+      resetDataBtn: document.getElementById("resetDataBtn")
+    };
+
+    let state = loadState();
+    let session = loadSession();
+
+    // Seeded demo data establishes the crisis baseline and initial remediation story.
+    function seedState() {
+      return {
+        fleet: {
+          totalVehicles: 268000,
+          confirmedIncidents: 317,
+          trafficCollisions: 58,
+          seriousInjuries: 11,
+          fleetSafetyScore: 82,
+          safeMiles: 48200000,
+          edgeCasesLogged: 1432,
+          edgeCasesResolved: 1108
+        },
+        vehicle: {
+          id: "AM-VTX-2048",
+          driveOSVersion: "DriveOS 2.3.7",
+          safetyScore: 78,
+          lastUpdate: "March 14, 2026"
+        },
+        safetyTrend: [
+          { label: "Feb 24", value: 61 },
+          { label: "Feb 28", value: 63 },
+          { label: "Mar 03", value: 68 },
+          { label: "Mar 07", value: 72 },
+          { label: "Mar 10", value: 76 },
+          { label: "Mar 12", value: 79 },
+          { label: "Mar 15", value: 82 }
+        ],
+        riskTrend: [
+          { label: "W1", value: 8.4 },
+          { label: "W2", value: 7.2 },
+          { label: "W3", value: 5.1 },
+          { label: "W4", value: 4.3 },
+          { label: "W5", value: 3.8 }
+        ],
+        incidents: [
+          {
+            id: "EC-1182",
+            reporter: "driver@aurelius.com",
+            description: "Unexpected emergency braking at a busy four-way intersection during autonomous mode.",
+            location: "San Francisco, CA",
+            speed: 21,
+            autonomousMode: true,
+            status: "INVESTIGATING",
+            notes: "Reproduced in simulation with dense pedestrian occlusion and late lidar fusion.",
+            createdAt: "2026-03-12T08:30:00.000Z",
+            updatedAt: "2026-03-14T11:20:00.000Z"
+          },
+          {
+            id: "EC-1188",
+            reporter: "driver@aurelius.com",
+            description: "Autonomous driving disengaged entering a tunnel approach with reflective traffic barriers.",
+            location: "Boston, MA",
+            speed: 34,
+            autonomousMode: true,
+            status: "OPEN",
+            notes: "",
+            createdAt: "2026-03-13T16:15:00.000Z",
+            updatedAt: "2026-03-13T16:15:00.000Z"
+          },
+          {
+            id: "EC-1194",
+            reporter: "fleet-monitor@aurelius.com",
+            description: "Brake pulse observed in low-speed urban congestion after cyclist cut-in.",
+            location: "Chicago, IL",
+            speed: 14,
+            autonomousMode: true,
+            status: "RESOLVED",
+            notes: "Mapped to sensor fusion scheduler overload. Fix candidate linked to patch v2.4.1.",
+            createdAt: "2026-03-14T10:02:00.000Z",
+            updatedAt: "2026-03-15T05:10:00.000Z"
+          }
+        ],
+        upgrades: [
+          {
+            id: "UP-240",
+            version: "v2.4.0",
+            description: "Pedestrian detection model rebalanced for dense urban crossing scenarios.",
+            expectedImprovement: 18,
+            status: "APPROVED",
+            submittedBy: "engineer@aurelius.com",
+            submittedAt: "2026-03-12T09:15:00.000Z",
+            decisionAt: "2026-03-12T13:40:00.000Z",
+            decisionBy: "management@aurelius.com"
+          },
+          {
+            id: "UP-241",
+            version: "v2.4.1",
+            description: "Sensor fusion latency reduced by prioritizing urban edge-case compute pathways.",
+            expectedImprovement: 11,
+            status: "APPROVED",
+            submittedBy: "engineer@aurelius.com",
+            submittedAt: "2026-03-13T10:45:00.000Z",
+            decisionAt: "2026-03-13T14:20:00.000Z",
+            decisionBy: "management@aurelius.com"
+          },
+          {
+            id: "UP-242",
+            version: "v2.5.0",
+            description: "Emergency braking algorithm recalibrated for multi-agent urban occlusion events.",
+            expectedImprovement: 16,
+            status: "PENDING",
+            submittedBy: "engineer@aurelius.com",
+            submittedAt: "2026-03-14T08:30:00.000Z",
+            decisionAt: "",
+            decisionBy: ""
+          }
+        ],
+        activities: [
+          { id: "ACT-1", message: "Driver reported incident EC-1182 in San Francisco, CA", timestamp: "2026-03-12T08:30:00.000Z", type: "incident" },
+          { id: "ACT-2", message: "Upgrade v2.4.0 submitted for pedestrian detection improvements", timestamp: "2026-03-12T09:15:00.000Z", type: "upgrade" },
+          { id: "ACT-3", message: "Management approved upgrade v2.4.0 for controlled deployment", timestamp: "2026-03-12T13:40:00.000Z", type: "approval" },
+          { id: "ACT-4", message: "Driver reported incident EC-1188 in Boston, MA", timestamp: "2026-03-13T16:15:00.000Z", type: "incident" },
+          { id: "ACT-5", message: "Patch v2.4.1 deployed fleet-wide to Vortex-equipped vehicles", timestamp: "2026-03-14T18:00:00.000Z", type: "deployment" },
+          { id: "ACT-6", message: "Engineering resolved incident EC-1194 and linked remediation to v2.4.1", timestamp: "2026-03-15T05:10:00.000Z", type: "resolution" }
+        ]
+      };
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        const seeded = seedState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+        return seeded;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch (error) {
+        const seeded = seedState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+        return seeded;
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadSession() {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveSession(nextSession) {
+      session = nextSession;
+      if (nextSession) {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(nextSession));
+      } else {
+        localStorage.removeItem(SESSION_KEY);
+      }
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function formatDateLong(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+    }
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat("en-US").format(value);
+    }
+
+    function addActivity(message, type) {
+      state.activities.unshift({
+        id: "ACT-" + Date.now(),
+        message,
+        timestamp: new Date().toISOString(),
+        type
+      });
+      state.activities = state.activities.slice(0, 24);
+      saveState();
+    }
+
+    function generateId(prefix, collection) {
+      const numericIds = collection
+        .map((item) => Number(String(item.id).replace(/\D/g, "")))
+        .filter((value) => !Number.isNaN(value));
+      const next = (numericIds.length ? Math.max(...numericIds) : prefix === "EC" ? 1200 : 242) + 1;
+      return prefix + "-" + next;
+    }
+
+    function getMetrics() {
+      const approvedUpgrades = state.upgrades.filter((upgrade) => upgrade.status === "APPROVED").length;
+      const openIncidents = state.incidents.filter((incident) => incident.status !== "RESOLVED").length;
+      return [
+        {
+          label: "Total Vehicles in Fleet",
+          value: formatNumber(state.fleet.totalVehicles),
+          foot: "Aurelius Vortex-enabled vehicles"
+        },
+        {
+          label: "Confirmed Incidents",
+          value: formatNumber(state.fleet.confirmedIncidents),
+          foot: openIncidents + " active investigations"
+        },
+        {
+          label: "Traffic Collisions",
+          value: formatNumber(state.fleet.trafficCollisions),
+          foot: "Dense urban operating environments"
+        },
+        {
+          label: "Serious Injuries",
+          value: formatNumber(state.fleet.seriousInjuries),
+          foot: "Immediate case transparency priority"
+        },
+        {
+          label: "Fleet Safety Score",
+          value: state.fleet.fleetSafetyScore + "/100",
+          foot: approvedUpgrades + " approved upgrades influencing trend"
+        },
+        {
+          label: "Verified Safe Miles",
+          value: formatNumber(state.fleet.safeMiles),
+          foot: "Post-remediation monitored autonomy miles"
+        },
+        {
+          label: "Edge Cases Logged",
+          value: formatNumber(state.fleet.edgeCasesLogged),
+          foot: "Complex urban scenarios recorded"
+        },
+        {
+          label: "Edge Cases Resolved",
+          value: formatNumber(state.fleet.edgeCasesResolved),
+          foot: "Simulation and patch validation complete"
+        }
+      ];
+    }
+
+    function renderMetrics() {
+      appEls.metricsGrid.innerHTML = getMetrics().map((metric) => `
+        <div class="metric-card">
+          <div class="metric-label">${metric.label}</div>
+          <div class="metric-value">${metric.value}</div>
+          <div class="metric-foot">${metric.foot}</div>
+        </div>
+      `).join("");
+      appEls.lastUpdatedTag.textContent = "Last sync " + formatDate(new Date().toISOString());
+    }
+
+    function renderActivityFeed() {
+      appEls.activityFeed.innerHTML = state.activities.length ? state.activities.map((entry) => `
+        <div class="feed-item">
+          <time>${formatDate(entry.timestamp)}</time>
+          <strong>${entry.message}</strong>
+          <div class="muted">${entry.type.toUpperCase()} event</div>
+        </div>
+      `).join("") : `<div class="empty-state">No activity recorded.</div>`;
+    }
+
+    function renderTimeline() {
+      const timelineData = state.upgrades
+        .filter((upgrade) => ["APPROVED", "DEPLOYED", "PENDING", "REJECTED"].includes(upgrade.status))
+        .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+      appEls.upgradeTimeline.innerHTML = timelineData.length ? timelineData.map((upgrade) => `
+        <div class="timeline-item">
+          <div class="timestamp">${formatDateLong(upgrade.decisionAt || upgrade.submittedAt)}</div>
+          <strong>${upgrade.version}</strong>
+          <div>${upgrade.description}</div>
+          <div class="list-meta">
+            <span class="tag">Expected improvement +${upgrade.expectedImprovement}%</span>
+            ${statusPill(upgrade.status)}
+          </div>
+        </div>
+      `).join("") : `<div class="empty-state">No upgrades in timeline.</div>`;
+    }
+
+    function statusPill(status) {
+      const normalized = status.toLowerCase();
+      const classMap = {
+        open: "pill-open",
+        investigating: "pill-investigating",
+        resolved: "pill-resolved",
+        pending: "pill-open",
+        approved: "pill-approved",
+        rejected: "pill-rejected",
+        deployed: "pill-deployed"
+      };
+      return `<span class="pill ${classMap[normalized] || "pill-investigating"}">${status}</span>`;
+    }
+
+    // Lightweight canvas charts keep the prototype dependency-free and presentation-ready.
+    function drawLineChart(canvasId, points, config = {}) {
+      requestAnimationFrame(() => {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        const padding = { top: 24, right: 18, bottom: 34, left: 36 };
+        const innerWidth = rect.width - padding.left - padding.right;
+        const innerHeight = rect.height - padding.top - padding.bottom;
+        const values = points.map((point) => point.value);
+        const min = config.min !== undefined ? config.min : Math.min(...values) - 2;
+        const max = config.max !== undefined ? config.max : Math.max(...values) + 2;
+
+        ctx.strokeStyle = "rgba(141, 164, 190, 0.18)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 4; i += 1) {
+          const y = padding.top + (innerHeight / 3) * i;
+          ctx.beginPath();
+          ctx.moveTo(padding.left, y);
+          ctx.lineTo(rect.width - padding.right, y);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = config.stroke || "#6ef2ff";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        points.forEach((point, index) => {
+          const x = padding.left + (innerWidth / Math.max(points.length - 1, 1)) * index;
+          const y = padding.top + innerHeight - ((point.value - min) / (max - min || 1)) * innerHeight;
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        const gradient = ctx.createLinearGradient(0, padding.top, 0, rect.height - padding.bottom);
+        gradient.addColorStop(0, config.fill || "rgba(110, 242, 255, 0.24)");
+        gradient.addColorStop(1, "rgba(110, 242, 255, 0.01)");
+
+        ctx.lineTo(padding.left + innerWidth, rect.height - padding.bottom);
+        ctx.lineTo(padding.left, rect.height - padding.bottom);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.fillStyle = config.stroke || "#6ef2ff";
+        points.forEach((point, index) => {
+          const x = padding.left + (innerWidth / Math.max(points.length - 1, 1)) * index;
+          const y = padding.top + innerHeight - ((point.value - min) / (max - min || 1)) * innerHeight;
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.fillStyle = "#8da4be";
+        ctx.font = "12px IBM Plex Sans, sans-serif";
+        ctx.textAlign = "center";
+        points.forEach((point, index) => {
+          const x = padding.left + (innerWidth / Math.max(points.length - 1, 1)) * index;
+          ctx.fillText(point.label, x, rect.height - 12);
+        });
+
+        ctx.textAlign = "left";
+        ctx.fillText(String(Math.round(max)), 6, padding.top + 4);
+        ctx.fillText(String(Math.round(min)), 6, rect.height - padding.bottom);
+      });
+    }
+
+    function createDriverDashboard() {
+      const myIncidents = state.incidents.filter((incident) => incident.reporter === session.email);
+      const upcomingUpgrades = state.upgrades
+        .filter((upgrade) => upgrade.status === "APPROVED" || upgrade.status === "PENDING")
+        .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+      return `
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Vehicle Status Panel</h2>
+              <p class="panel-subtitle">Owner-facing transparency for your Vortex system health and update posture.</p>
+            </div>
+            <span class="tag">Driver visibility active</span>
+          </div>
+          <div class="overview-grid">
+            <div class="mini-stat">
+              <div class="muted">Vehicle ID</div>
+              <div class="value">${state.vehicle.id}</div>
+            </div>
+            <div class="mini-stat">
+              <div class="muted">DriveOS Version</div>
+              <div class="value">${state.vehicle.driveOSVersion}</div>
+            </div>
+            <div class="mini-stat">
+              <div class="muted">Safety Score</div>
+              <div class="value">${state.vehicle.safetyScore}/100</div>
+            </div>
+            <div class="mini-stat">
+              <div class="muted">Last Update Installed</div>
+              <div class="value" style="font-size:20px;">${state.vehicle.lastUpdate}</div>
+            </div>
+          </div>
+        </section>
+
+        <div class="two-col">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Report New Incident</h2>
+                <p class="panel-subtitle">Capture field anomalies directly into the ASCC investigation queue.</p>
+              </div>
+            </div>
+            <form id="incidentForm" class="form-grid">
+              <label>
+                Description
+                <textarea id="incidentDescription" placeholder="Describe what happened in traffic..." required></textarea>
+              </label>
+              <div class="form-grid two">
+                <label>
+                  Location
+                  <input id="incidentLocation" type="text" placeholder="City, State" required />
+                </label>
+                <label>
+                  Speed (mph)
+                  <input id="incidentSpeed" type="number" min="0" placeholder="0" required />
+                </label>
+              </div>
+              <label>
+                Autonomous Mode Active
+                <select id="incidentAutoMode" required>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </label>
+              <button class="btn btn-primary" type="submit">Submit Incident Ticket</button>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Submitted Cases</h2>
+                <p class="panel-subtitle">Track investigation status and visible upgrade remediation paths.</p>
+              </div>
+            </div>
+            <div class="list compact">
+              ${myIncidents.length ? myIncidents.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((incident) => `
+                <div class="list-item">
+                  <strong>${incident.id}</strong>
+                  <div>${incident.description}</div>
+                  <div class="list-meta">
+                    <span>${incident.location}</span>
+                    <span>${incident.speed} mph</span>
+                    <span>${incident.autonomousMode ? "Autonomous On" : "Autonomous Off"}</span>
+                    ${statusPill(incident.status)}
+                  </div>
+                  <div class="helper-text" style="margin-top:10px;">${incident.notes || "Awaiting engineering notes."}</div>
+                </div>
+              `).join("") : `<div class="empty-state">No incidents submitted yet.</div>`}
+            </div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Upcoming System Upgrades</h2>
+              <p class="panel-subtitle">Visible remediation pipeline for your vehicle and the wider Vortex fleet.</p>
+            </div>
+          </div>
+          <div class="list compact">
+            ${upcomingUpgrades.map((upgrade) => `
+              <div class="list-item">
+                <strong>${upgrade.version}</strong>
+                <div>${upgrade.description}</div>
+                <div class="list-row">
+                  <div class="list-meta">
+                    <span>Expected safety improvement +${upgrade.expectedImprovement}%</span>
+                    <span>Submitted ${formatDate(upgrade.submittedAt)}</span>
+                  </div>
+                  ${statusPill(upgrade.status)}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function createEngineerDashboard() {
+      const incidentOptions = state.incidents
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .map((incident) => `
+          <div class="list-item">
+            <div class="list-row" style="margin-top:0;">
+              <strong>${incident.id}</strong>
+              ${statusPill(incident.status)}
+            </div>
+            <div>${incident.description}</div>
+            <div class="list-meta">
+              <span>${incident.location}</span>
+              <span>${incident.speed} mph</span>
+              <span>${incident.autonomousMode ? "Autonomous Mode" : "Manual Mode"}</span>
+            </div>
+            <div class="helper-text" style="margin-top:10px;">${incident.notes || "No investigation notes yet."}</div>
+          </div>
+        `).join("");
+
+      return `
+        <div class="two-col">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Incident Investigation Queue</h2>
+                <p class="panel-subtitle">Operational triage across field anomalies recorded after the Ghost Drive Incident.</p>
+              </div>
+            </div>
+            <div class="list">${incidentOptions}</div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Update Incident Status</h2>
+                <p class="panel-subtitle">Record investigation progress and technical findings for audit visibility.</p>
+              </div>
+            </div>
+            <form id="incidentUpdateForm" class="form-grid">
+              <label>
+                Incident
+                <select id="incidentSelect">${state.incidents.map((incident) => `
+                  <option value="${incident.id}">${incident.id} | ${incident.location}</option>
+                `).join("")}</select>
+              </label>
+              <label>
+                Status
+                <select id="incidentStatus">
+                  <option value="OPEN">OPEN</option>
+                  <option value="INVESTIGATING">INVESTIGATING</option>
+                  <option value="RESOLVED">RESOLVED</option>
+                </select>
+              </label>
+              <label>
+                Investigation Notes
+                <textarea id="incidentNotes" placeholder="Document root cause, sensor behavior, simulation findings..." required></textarea>
+              </label>
+              <button class="btn btn-primary" type="submit">Apply Investigation Update</button>
+            </form>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Submit Upgrade Patch</h2>
+              <p class="panel-subtitle">Promote verified remediations into the approval pipeline with expected fleet impact.</p>
+            </div>
+          </div>
+          <form id="upgradeForm" class="form-grid">
+            <div class="form-grid two">
+              <label>
+                Version Number
+                <input id="upgradeVersion" type="text" placeholder="v2.5.1" required />
+              </label>
+              <label>
+                Expected Safety Improvement %
+                <input id="upgradeImprovement" type="number" min="1" max="100" placeholder="12" required />
+              </label>
+            </div>
+            <label>
+              Upgrade Description
+              <textarea id="upgradeDescription" placeholder="Explain the patch objective and what safety issue it mitigates..." required></textarea>
+            </label>
+            <button class="btn btn-primary" type="submit">Submit Upgrade for Approval</button>
+          </form>
+        </section>
+      `;
+    }
+
+    function createManagementDashboard() {
+      const pending = state.upgrades.filter((upgrade) => upgrade.status === "PENDING");
+      const approved = state.upgrades.filter((upgrade) => upgrade.status === "APPROVED");
+
+      return `
+        <div class="three-col">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Fleet Safety Overview</h2>
+                <p class="panel-subtitle">Executive operating picture of stabilization progress.</p>
+              </div>
+            </div>
+            <div class="status-strip">
+              <div class="status-item">
+                <strong>Safety Recovery</strong>
+                <div class="muted">Fleet safety score has improved from 61 to ${state.fleet.fleetSafetyScore} since transparency launch.</div>
+              </div>
+              <div class="status-item">
+                <strong>Incident Backlog</strong>
+                <div class="muted">${state.incidents.filter((incident) => incident.status !== "RESOLVED").length} incidents remain in active triage.</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Incident Trend Statistics</h2>
+                <p class="panel-subtitle">Weekly operational decay in crisis volume.</p>
+              </div>
+            </div>
+            <div class="overview-grid">
+              <div class="mini-stat">
+                <div class="muted">Open</div>
+                <div class="value">${state.incidents.filter((incident) => incident.status === "OPEN").length}</div>
+              </div>
+              <div class="mini-stat">
+                <div class="muted">Investigating</div>
+                <div class="value">${state.incidents.filter((incident) => incident.status === "INVESTIGATING").length}</div>
+              </div>
+              <div class="mini-stat">
+                <div class="muted">Resolved</div>
+                <div class="value">${state.incidents.filter((incident) => incident.status === "RESOLVED").length}</div>
+              </div>
+              <div class="mini-stat">
+                <div class="muted">Approved Upgrades</div>
+                <div class="value">${approved.length}</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Upgrade Pipeline</h2>
+                <p class="panel-subtitle">Decision queue for management release control.</p>
+              </div>
+            </div>
+            <div class="status-strip">
+              <div class="status-item">
+                <strong>${pending.length} Pending Upgrades</strong>
+                <div class="muted">${approved.length} upgrades already approved for fleet release sequencing.</div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Pending Upgrade Decisions</h2>
+              <p class="panel-subtitle">Approve or reject software remediations before controlled deployment.</p>
+            </div>
+          </div>
+          <div class="list">
+            ${pending.length ? pending.map((upgrade) => `
+              <div class="list-item">
+                <div class="list-row" style="margin-top:0;">
+                  <strong>${upgrade.version}</strong>
+                  ${statusPill(upgrade.status)}
+                </div>
+                <div>${upgrade.description}</div>
+                <div class="list-meta">
+                  <span>Improvement +${upgrade.expectedImprovement}%</span>
+                  <span>Submitted ${formatDate(upgrade.submittedAt)}</span>
+                  <span>By ${upgrade.submittedBy}</span>
+                </div>
+                <div class="list-row">
+                  <button class="btn btn-primary" type="button" data-action="approve-upgrade" data-id="${upgrade.id}">Approve Upgrade</button>
+                  <button class="btn btn-danger" type="button" data-action="reject-upgrade" data-id="${upgrade.id}">Reject Upgrade</button>
+                </div>
+              </div>
+            `).join("") : `<div class="empty-state">No pending upgrades awaiting management review.</div>`}
+          </div>
+        </section>
+      `;
+    }
+
+    function createRegulatorDashboard() {
+      return `
+        <div class="two-col">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Safety Score Trend</h2>
+                <p class="panel-subtitle">Observed improvement trend since ASCC remediation operations began.</p>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="regulatorSafetyChart"></canvas>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Recent Patches</h2>
+                <p class="panel-subtitle">Software changes visible for compliance monitoring.</p>
+              </div>
+            </div>
+            <div class="list compact">
+              ${state.upgrades.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)).map((upgrade) => `
+                <div class="list-item">
+                  <strong>${upgrade.version}</strong>
+                  <div>${upgrade.description}</div>
+                  <div class="list-row">
+                    <div class="list-meta">
+                      <span>Expected improvement +${upgrade.expectedImprovement}%</span>
+                      <span>Submitted ${formatDate(upgrade.submittedAt)}</span>
+                    </div>
+                    ${statusPill(upgrade.status)}
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Full Incident Logs</h2>
+              <p class="panel-subtitle">Traceable incident records, technical notes, and remediation linkage.</p>
+            </div>
+          </div>
+          <div class="list">
+            ${state.incidents.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((incident) => `
+              <div class="list-item">
+                <div class="list-row" style="margin-top:0;">
+                  <strong>${incident.id}</strong>
+                  ${statusPill(incident.status)}
+                </div>
+                <div>${incident.description}</div>
+                <div class="list-meta">
+                  <span>${incident.location}</span>
+                  <span>${incident.speed} mph</span>
+                  <span>${formatDate(incident.createdAt)}</span>
+                </div>
+                <div class="helper-text" style="margin-top:10px;">${incident.notes || "No notes recorded."}</div>
+              </div>
+            `).join("")}
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Upgrade History</h2>
+              <p class="panel-subtitle">Chronology of remediation submissions and executive decisions.</p>
+            </div>
+          </div>
+          <div class="timeline">
+            ${state.upgrades.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)).map((upgrade) => `
+              <div class="timeline-item">
+                <div class="timestamp">${formatDateLong(upgrade.decisionAt || upgrade.submittedAt)}</div>
+                <strong>${upgrade.version}</strong>
+                <div>${upgrade.description}</div>
+                <div class="list-meta">
+                  ${statusPill(upgrade.status)}
+                  <span>Impact +${upgrade.expectedImprovement}%</span>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function createInsuranceDashboard() {
+      const estimatedClaimProbability = Math.max(2.1, 8.7 - state.upgrades.filter((upgrade) => upgrade.status === "APPROVED").length * 1.1).toFixed(1);
+
+      return `
+        <div class="three-col">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Incident Frequency</h2>
+                <p class="panel-subtitle">Rolling event rate in monitored urban miles.</p>
+              </div>
+            </div>
+            <div class="mini-stat">
+              <div class="muted">Per 100K autonomy miles</div>
+              <div class="value">${(state.incidents.length * 1.7).toFixed(1)}</div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Safety Score Trend</h2>
+                <p class="panel-subtitle">Exposure signal from fleet remediation progress.</p>
+              </div>
+            </div>
+            <div class="mini-stat">
+              <div class="muted">Current fleet score</div>
+              <div class="value">${state.fleet.fleetSafetyScore}/100</div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Estimated Claim Probability</h2>
+                <p class="panel-subtitle">Simulated exposure probability after current patch posture.</p>
+              </div>
+            </div>
+            <div class="mini-stat">
+              <div class="muted">Projected next quarter</div>
+              <div class="value">${estimatedClaimProbability}%</div>
+            </div>
+          </section>
+        </div>
+
+        <div class="two-col">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Risk Trend Analytics</h2>
+                <p class="panel-subtitle">Downward claim exposure signal as approved upgrades propagate.</p>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="insuranceRiskChart"></canvas>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Exposure Drivers</h2>
+                <p class="panel-subtitle">Qualitative signals insurers can monitor in the ASCC platform.</p>
+              </div>
+            </div>
+            <div class="status-strip">
+              <div class="status-item">
+                <strong>Urban Compute Load</strong>
+                <div class="muted">Primary risk driver traced to sensor fusion overload in dense traffic scenes.</div>
+              </div>
+              <div class="status-item">
+                <strong>Patch Coverage</strong>
+                <div class="muted">${state.upgrades.filter((upgrade) => upgrade.status === "APPROVED").length} approved upgrades are reducing active technical exposure.</div>
+              </div>
+              <div class="status-item">
+                <strong>Claims Outlook</strong>
+                <div class="muted">Claim probability declines as incident resolution rate and safe miles increase.</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderRoleDashboard() {
+      if (!session) return;
+
+      const role = session.role;
+      const names = {
+        Driver: "Driver Command View",
+        Engineer: "Engineering Response Console",
+        Management: "Executive Approval Deck",
+        Regulator: "Regulatory Oversight View",
+        Insurance: "Insurance Risk Intelligence View"
+      };
+
+      appEls.dashboardTitle.textContent = "Aurelius Safety Command Center";
+      appEls.dashboardSubtitle.textContent = names[role] + " | " + session.name;
+      appEls.sessionBadge.textContent = role + " | " + session.email;
+
+      let html = "";
+      if (role === "Driver") html = createDriverDashboard();
+      if (role === "Engineer") html = createEngineerDashboard();
+      if (role === "Management") html = createManagementDashboard();
+      if (role === "Regulator") html = createRegulatorDashboard();
+      if (role === "Insurance") html = createInsuranceDashboard();
+      appEls.roleContent.innerHTML = html;
+
+      bindRoleEvents(role);
+
+      if (role === "Regulator") {
+        drawLineChart("regulatorSafetyChart", state.safetyTrend, {
+          min: 58,
+          max: 86,
+          stroke: "#6ef2ff",
+          fill: "rgba(110, 242, 255, 0.22)"
+        });
+      }
+      if (role === "Insurance") {
+        drawLineChart("insuranceRiskChart", state.riskTrend, {
+          min: 2,
+          max: 9,
+          stroke: "#19f0b1",
+          fill: "rgba(25, 240, 177, 0.18)"
+        });
+      }
+    }
+
+    // Role-specific actions mutate localStorage-backed state and immediately refresh the command view.
+    function bindRoleEvents(role) {
+      if (role === "Driver") {
+        const incidentForm = document.getElementById("incidentForm");
+        incidentForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const description = document.getElementById("incidentDescription").value.trim();
+          const location = document.getElementById("incidentLocation").value.trim();
+          const speed = Number(document.getElementById("incidentSpeed").value);
+          const autonomousMode = document.getElementById("incidentAutoMode").value === "true";
+          const id = generateId("EC", state.incidents);
+          const now = new Date().toISOString();
+
+          state.incidents.unshift({
+            id,
+            reporter: session.email,
+            description,
+            location,
+            speed,
+            autonomousMode,
+            status: "OPEN",
+            notes: "",
+            createdAt: now,
+            updatedAt: now
+          });
+
+          state.fleet.confirmedIncidents += 1;
+          state.fleet.edgeCasesLogged += 1;
+          addActivity(`Driver reported incident ${id} in ${location}`, "incident");
+          saveState();
+          renderApp();
+        });
+      }
+
+      if (role === "Engineer") {
+        const incidentUpdateForm = document.getElementById("incidentUpdateForm");
+        const upgradeForm = document.getElementById("upgradeForm");
+
+        incidentUpdateForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const incidentId = document.getElementById("incidentSelect").value;
+          const nextStatus = document.getElementById("incidentStatus").value;
+          const notes = document.getElementById("incidentNotes").value.trim();
+          const incident = state.incidents.find((item) => item.id === incidentId);
+          if (!incident) return;
+
+          const previousStatus = incident.status;
+          incident.status = nextStatus;
+          incident.notes = notes;
+          incident.updatedAt = new Date().toISOString();
+
+          if (previousStatus !== "RESOLVED" && nextStatus === "RESOLVED") {
+            state.fleet.edgeCasesResolved += 1;
+            state.fleet.fleetSafetyScore = Math.min(98, state.fleet.fleetSafetyScore + 1);
+          }
+
+          addActivity(`Engineer marked incident ${incident.id} as ${nextStatus}`, "investigation");
+          saveState();
+          renderApp();
+        });
+
+        upgradeForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const version = document.getElementById("upgradeVersion").value.trim();
+          const description = document.getElementById("upgradeDescription").value.trim();
+          const expectedImprovement = Number(document.getElementById("upgradeImprovement").value);
+          const id = generateId("UP", state.upgrades);
+          const now = new Date().toISOString();
+
+          state.upgrades.unshift({
+            id,
+            version,
+            description,
+            expectedImprovement,
+            status: "PENDING",
+            submittedBy: session.email,
+            submittedAt: now,
+            decisionAt: "",
+            decisionBy: ""
+          });
+
+          addActivity(`Upgrade ${version} submitted for management review`, "upgrade");
+          saveState();
+          renderApp();
+        });
+      }
+
+      if (role === "Management") {
+        document.querySelectorAll("[data-action='approve-upgrade']").forEach((button) => {
+          button.addEventListener("click", () => {
+            handleUpgradeDecision(button.dataset.id, "APPROVED");
+          });
+        });
+        document.querySelectorAll("[data-action='reject-upgrade']").forEach((button) => {
+          button.addEventListener("click", () => {
+            handleUpgradeDecision(button.dataset.id, "REJECTED");
+          });
+        });
+      }
+    }
+
+    function handleUpgradeDecision(id, status) {
+      const upgrade = state.upgrades.find((item) => item.id === id);
+      if (!upgrade) return;
+
+      upgrade.status = status;
+      upgrade.decisionAt = new Date().toISOString();
+      upgrade.decisionBy = session.email;
+
+      if (status === "APPROVED") {
+        state.fleet.fleetSafetyScore = Math.min(99, state.fleet.fleetSafetyScore + Math.max(1, Math.round(upgrade.expectedImprovement / 8)));
+        state.fleet.safeMiles += 620000;
+        state.vehicle.lastUpdate = formatDateLong(upgrade.decisionAt);
+        state.vehicle.driveOSVersion = "DriveOS " + upgrade.version.replace("v", "");
+        addActivity(`Management approved upgrade ${upgrade.version}`, "approval");
+        addActivity(`Patch ${upgrade.version} deployed fleet-wide`, "deployment");
+      } else {
+        addActivity(`Management rejected upgrade ${upgrade.version}`, "approval");
+      }
+
+      saveState();
+      renderApp();
+    }
+
+    function renderApp() {
+      renderMetrics();
+      renderActivityFeed();
+      renderTimeline();
+      renderRoleDashboard();
+      appEls.appScreen.classList.add("flash");
+      setTimeout(() => appEls.appScreen.classList.remove("flash"), 900);
+    }
+
+    function showLogin() {
+      appEls.loginScreen.classList.remove("hidden");
+      appEls.appScreen.classList.add("hidden");
+    }
+
+    function showDashboard() {
+      appEls.loginScreen.classList.add("hidden");
+      appEls.appScreen.classList.remove("hidden");
+      renderApp();
+    }
+
+    appEls.loginForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value.trim();
+      const account = USER_CREDENTIALS[email];
+
+      if (!account || account.password !== password) {
+        appEls.loginError.textContent = "Invalid credentials. Use one of the listed stakeholder accounts.";
+        return;
+      }
+
+      appEls.loginError.textContent = "";
+      saveSession({
+        email,
+        role: account.role,
+        name: account.name
+      });
+      showDashboard();
+    });
+
+    appEls.logoutBtn.addEventListener("click", () => {
+      saveSession(null);
+      showLogin();
+    });
+
+    appEls.resetDataBtn.addEventListener("click", () => {
+      state = seedState();
+      saveState();
+      addActivity("ASCC demo data reset to baseline crisis state", "system");
+      renderApp();
+    });
+
+    window.addEventListener("resize", () => {
+      if (!session) return;
+      if (session.role === "Regulator") {
+        drawLineChart("regulatorSafetyChart", state.safetyTrend, { min: 58, max: 86, stroke: "#6ef2ff", fill: "rgba(110, 242, 255, 0.22)" });
+      }
+      if (session.role === "Insurance") {
+        drawLineChart("insuranceRiskChart", state.riskTrend, { min: 2, max: 9, stroke: "#19f0b1", fill: "rgba(25, 240, 177, 0.18)" });
+      }
+    });
+
+    if (session) {
+      showDashboard();
+    } else {
+      showLogin();
+    }
+  </script>
+</body>
+</html>

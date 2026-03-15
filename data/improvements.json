@@ -1,0 +1,46 @@
+{
+  "latestFix": {
+    "title": "Pedestrian recognition model v2.3",
+    "accuracyGain": "+19%",
+    "reduction": "11%",
+    "summary": "Expanded occlusion training set and adjusted temporal confidence smoothing for dense urban crossings."
+  },
+  "trendSeries": [
+    {
+      "week": "W1",
+      "edgeFrequency": 248,
+      "resolutionRate": 61,
+      "modelAccuracy": 89.8
+    },
+    {
+      "week": "W2",
+      "edgeFrequency": 226,
+      "resolutionRate": 65,
+      "modelAccuracy": 90.9
+    },
+    {
+      "week": "W3",
+      "edgeFrequency": 214,
+      "resolutionRate": 69,
+      "modelAccuracy": 92.1
+    },
+    {
+      "week": "W4",
+      "edgeFrequency": 199,
+      "resolutionRate": 74,
+      "modelAccuracy": 93.4
+    },
+    {
+      "week": "W5",
+      "edgeFrequency": 185,
+      "resolutionRate": 78,
+      "modelAccuracy": 94.6
+    },
+    {
+      "week": "W6",
+      "edgeFrequency": 171,
+      "resolutionRate": 82,
+      "modelAccuracy": 95.8
+    }
+  ]
+}
