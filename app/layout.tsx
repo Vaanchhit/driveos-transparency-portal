@@ -15,8 +15,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "DriveOS Transparency Portal",
-  description: "Public transparency dashboard showing how DriveOS learns from edge cases and improves safety over time."
+  title: "Health Credit Score Engine",
+  description: "Prototype health risk scoring dashboard that converts biometric data into explainable insurance decisions."
 };
 
 export default function RootLayout({

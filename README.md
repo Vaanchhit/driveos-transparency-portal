@@ -1,74 +1,46 @@
-# DriveOS Transparency Portal
+# Health Credit Score Engine
 
-DriveOS Transparency Portal is a Vercel-ready Next.js prototype that presents autonomous driving progress in a public mission-control dashboard. It uses mock telemetry APIs, incident logs, interactive charts, and a lightweight Three.js perception demo to show how the system learns from mistakes.
+Next.js prototype that converts biometric inputs into a 0-100 fatigue and injury proxy score, explains the main drivers, and maps the result to a mock insurance action.
+
+## What it includes
+
+- Biometric input controls for RHR, HRV, sleep, consistency, strain, and age
+- Derived signals for recovery, strain load, and baseline deviation
+- Deterministic risk scoring engine shared by UI and API
+- Explainability layer that decomposes the score into key drivers
+- 7-day trend chart and what-if simulator
+- Mock insurer API at `POST /api/health-score`
 
 ## Stack
 
 - Next.js App Router
 - React
 - Tailwind CSS
-- ShadCN-style UI primitives
 - Recharts
-- Three.js via `@react-three/fiber`
-- Mock JSON datasets served through Next.js API routes
+- TypeScript
 
-## Project Structure
-
-```text
-app/
-  api/
-    incidents/route.ts
-    improvements/route.ts
-    metrics/route.ts
-  globals.css
-  layout.tsx
-  page.tsx
-components/
-  ui/
-  charts-panel.tsx
-  dashboard-shell.tsx
-  incident-explorer.tsx
-  latest-fix-panel.tsx
-  live-progress-counter.tsx
-  metric-card.tsx
-  perception-visualizer.tsx
-data/
-  incidents.json
-  improvements.json
-  metrics.json
-lib/
-  types.ts
-  utils.ts
-```
-
-## Run Locally
-
-1. Install dependencies:
+## Run locally
 
 ```bash
 npm install
-```
-
-2. Start the dev server:
-
-```bash
 npm run dev
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
-## Deploy To Vercel
+## API example
 
-1. Push the project to a Git repository.
-2. Import the repository into [Vercel](https://vercel.com/).
-3. Use the default Next.js build settings.
-4. Deploy. No extra environment variables are required.
+`POST /api/health-score`
 
-## Mock APIs
+```json
+{
+  "restingHeartRate": 64,
+  "hrv": 52,
+  "sleepHours": 6.3,
+  "sleepConsistency": 71,
+  "activityStrain": 7,
+  "age": 36
+}
+```
 
-- `GET /api/metrics`
-- `GET /api/incidents`
-- `GET /api/improvements`
-
-Each endpoint serves realistic mock telemetry from `/Users/vaanchhitagarwal/Documents/New project/data`.
-# driveos-transparency-portal
+Returns score, risk band, recommended action, derived signals, and ranked drivers.
